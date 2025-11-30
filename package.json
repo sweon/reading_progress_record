@@ -12,7 +12,11 @@
     "vite": "^7.2.4"
   },
   "dependencies": {
+    "@capacitor/android": "^7.4.4",
+    "@capacitor/cli": "^7.4.4",
+    "@capacitor/core": "^7.4.4",
     "chart.js": "^4.5.1",
-    "html2canvas": "^1.4.1"
+    "html2canvas": "^1.4.1",
+    "vite-plugin-pwa": "^1.2.0"
   }
 }
