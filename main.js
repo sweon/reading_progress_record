@@ -36,18 +36,33 @@ const importModal = document.getElementById('importModal');
 const cancelImportBtn = document.getElementById('cancelImportBtn');
 const confirmImportBtn = document.getElementById('confirmImportBtn');
 
+const saveIndicator = document.getElementById('saveIndicator');
+
 // State
 let books = JSON.parse(localStorage.getItem('books')) || [];
 let selectedBookId = localStorage.getItem('selectedBookId') || null;
 let chartInstance = null;
 
 // Functions
+function showSaveStatus() {
+  saveIndicator.classList.remove('hidden');
+  setTimeout(() => {
+    saveIndicator.classList.add('hidden');
+  }, 2000);
+}
+
 function saveState() {
-  localStorage.setItem('books', JSON.stringify(books));
-  if (selectedBookId) {
-    localStorage.setItem('selectedBookId', selectedBookId);
-  } else {
-    localStorage.removeItem('selectedBookId');
+  try {
+    localStorage.setItem('books', JSON.stringify(books));
+    if (selectedBookId) {
+      localStorage.setItem('selectedBookId', selectedBookId);
+    } else {
+      localStorage.removeItem('selectedBookId');
+    }
+    showSaveStatus();
+  } catch (e) {
+    console.error('LocalStorage save failed:', e);
+    alert('Failed to save data. LocalStorage might be full or disabled.');
   }
 }
 

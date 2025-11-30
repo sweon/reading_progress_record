@@ -427,3 +427,24 @@ option.book-completed {
 .modal-actions button {
   min-width: 100px;
 }
+
+.save-indicator {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  z-index: 2000;
+}
+
+.save-indicator.hidden {
+  opacity: 0;
+}
