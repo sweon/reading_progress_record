@@ -55,12 +55,6 @@ header p {
   margin-bottom: 15px;
 }
 
-.settings-btn {
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-
 .book-management {
   background: var(--card-bg);
   padding: 20px;
@@ -432,39 +426,4 @@ option.book-completed {
 
 .modal-actions button {
   min-width: 100px;
-}
-
-/* Settings Modal Specifics */
-.settings-desc {
-  font-size: 0.9rem;
-  margin-bottom: 20px;
-}
-
-.help-text {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  margin-top: 5px;
-  text-align: left;
-}
-
-.sync-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.sync-status {
-  margin-top: 15px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  min-height: 1.2em;
-}
-
-.sync-status.success {
-  color: var(--success-color);
-}
-
-.sync-status.error {
-  color: var(--danger-color);
 }
