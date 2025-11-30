@@ -233,7 +233,7 @@ function handleAddBook() {
   newBookDate.value = '';
 
   // Close details
-  document.querySelector('details').removeAttribute('open');
+  document.getElementById('addBookDetails').removeAttribute('open');
 }
 
 function showDeleteModal() {
