@@ -13,7 +13,6 @@ const exportBtn = document.getElementById('exportBtn');
 const importBtn = document.getElementById('importBtn');
 const importFile = document.getElementById('importFile');
 
-const totalPagesInput = document.getElementById('totalPages');
 const currentPageInput = document.getElementById('currentPage');
 const updatePageBtn = document.getElementById('updatePageBtn');
 const pageDisplay = document.getElementById('pageDisplay');
@@ -178,7 +177,6 @@ function loadSelectedBook() {
       saveState();
     }
 
-    totalPagesInput.value = book.totalPages;
     currentPageInput.value = book.currentPage;
     cardBookTitle.textContent = book.title;
     cardStartDate.textContent = book.startDate || '-';
@@ -186,7 +184,6 @@ function loadSelectedBook() {
     updateProgressUI(book.currentPage, book.totalPages);
     renderChart(book);
   } else {
-    totalPagesInput.value = '';
     currentPageInput.value = '';
     cardBookTitle.textContent = 'Book Title';
     cardStartDate.textContent = '-';
@@ -277,11 +274,9 @@ function handleInputUpdate() {
   const book = books.find(b => b.id === selectedBookId);
   if (!book) return;
 
-  const total = parseInt(totalPagesInput.value) || 0;
   const current = parseInt(currentPageInput.value) || 0;
 
   // Update book state
-  book.totalPages = total;
   book.currentPage = current;
 
   // Update History
@@ -300,7 +295,7 @@ function handleInputUpdate() {
 
   saveState();
 
-  updateProgressUI(current, total);
+  updateProgressUI(current, book.totalPages);
   renderChart(book);
 
   // Re-render list to update green status if completed
@@ -437,13 +432,6 @@ currentPageInput.addEventListener('keydown', (e) => {
     handleInputUpdate();
   }
 });
-
-// Total pages can still update immediately or manually? 
-// User only asked for "Current Page" to be manual. 
-// But let's keep total pages immediate for now as it's less frequent, or make it manual too?
-// For consistency, let's leave total pages as immediate for now unless requested, 
-// but typically total pages doesn't change often.
-totalPagesInput.addEventListener('input', handleInputUpdate);
 
 exportBtn.addEventListener('click', handleExport);
 importFile.addEventListener('change', handleFileSelect);
