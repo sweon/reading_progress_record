@@ -17,6 +17,15 @@
     <header>
       <h1>Reading Progress</h1>
       <p>Track your journey, page by page.</p>
+      <button id="settingsBtn" class="btn-icon settings-btn" title="Settings">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path
+            d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.51a2 2 0 0 1 1-1.74l-.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z">
+          </path>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+      </button>
     </header>
 
     <main>
@@ -138,6 +147,30 @@
       <div class="modal-actions">
         <button id="cancelImportBtn" class="btn-secondary">Cancel</button>
         <button id="confirmImportBtn" class="btn-primary">Import</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="settingsModal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Settings</h3>
+      <p class="settings-desc">Sync your data across devices using GitHub Gists.</p>
+
+      <div class="input-group">
+        <label for="githubToken">GitHub Personal Access Token</label>
+        <input type="password" id="githubToken" placeholder="ghp_...">
+        <p class="help-text">Token must have <code>gist</code> scope.</p>
+      </div>
+
+      <div class="sync-actions">
+        <button id="syncUploadBtn" class="btn-primary">Upload to GitHub</button>
+        <button id="syncDownloadBtn" class="btn-secondary">Download from GitHub</button>
+      </div>
+
+      <div id="syncStatus" class="sync-status"></div>
+
+      <div class="modal-actions" style="margin-top: 20px;">
+        <button id="closeSettingsBtn" class="btn-secondary">Close</button>
       </div>
     </div>
   </div>

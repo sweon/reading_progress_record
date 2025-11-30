@@ -36,10 +36,20 @@ const importModal = document.getElementById('importModal');
 const cancelImportBtn = document.getElementById('cancelImportBtn');
 const confirmImportBtn = document.getElementById('confirmImportBtn');
 
+// Settings Modal Elements
+const settingsBtn = document.getElementById('settingsBtn');
+const settingsModal = document.getElementById('settingsModal');
+const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+const githubTokenInput = document.getElementById('githubToken');
+const syncUploadBtn = document.getElementById('syncUploadBtn');
+const syncDownloadBtn = document.getElementById('syncDownloadBtn');
+const syncStatus = document.getElementById('syncStatus');
+
 // State
 let books = JSON.parse(localStorage.getItem('books')) || [];
 let selectedBookId = localStorage.getItem('selectedBookId') || null;
 let chartInstance = null;
+const GIST_FILENAME = 'reading-progress-data.json';
 
 // Functions
 function saveState() {
@@ -389,6 +399,175 @@ function handleFileSelect(e) {
   reader.readAsText(file);
 }
 
+// --- GitHub Gist Sync Logic ---
+
+function showSettingsModal() {
+  settingsModal.classList.remove('hidden');
+  githubTokenInput.value = localStorage.getItem('githubToken') || '';
+  syncStatus.textContent = '';
+  syncStatus.className = 'sync-status';
+}
+
+function hideSettingsModal() {
+  settingsModal.classList.add('hidden');
+  // Save token on close
+  localStorage.setItem('githubToken', githubTokenInput.value.trim());
+}
+
+function setSyncStatus(message, type) {
+  syncStatus.textContent = message;
+  syncStatus.className = `sync-status ${type}`;
+}
+
+async function getGistId(token) {
+  try {
+    const response = await fetch('https://api.github.com/gists', {
+      headers: {
+        'Authorization': `token ${token}`,
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+
+    if (!response.ok) throw new Error('Failed to fetch gists');
+
+    const gists = await response.json();
+    const targetGist = gists.find(gist => gist.files[GIST_FILENAME]);
+    return targetGist ? targetGist.id : null;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+}
+
+async function createGist(token, content) {
+  const response = await fetch('https://api.github.com/gists', {
+    method: 'POST',
+    headers: {
+      'Authorization': `token ${token}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      description: 'Reading Progress Data',
+      public: false,
+      files: {
+        [GIST_FILENAME]: {
+          content: content
+        }
+      }
+    })
+  });
+
+  if (!response.ok) throw new Error('Failed to create gist');
+}
+
+async function updateGist(token, gistId, content) {
+  const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `token ${token}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      files: {
+        [GIST_FILENAME]: {
+          content: content
+        }
+      }
+    })
+  });
+
+  if (!response.ok) throw new Error('Failed to update gist');
+}
+
+async function handleSyncUpload() {
+  const token = githubTokenInput.value.trim();
+  if (!token) {
+    setSyncStatus('Please enter a GitHub Token.', 'error');
+    return;
+  }
+
+  setSyncStatus('Uploading...', '');
+
+  try {
+    const data = {
+      books,
+      selectedBookId,
+      lastUpdated: new Date().toISOString()
+    };
+    const content = JSON.stringify(data, null, 2);
+
+    let gistId = await getGistId(token);
+
+    if (gistId) {
+      await updateGist(token, gistId, content);
+    } else {
+      await createGist(token, content);
+    }
+
+    setSyncStatus('Upload successful!', 'success');
+    localStorage.setItem('githubToken', token);
+  } catch (err) {
+    setSyncStatus('Upload failed. Check console/token.', 'error');
+    console.error(err);
+  }
+}
+
+async function handleSyncDownload() {
+  const token = githubTokenInput.value.trim();
+  if (!token) {
+    setSyncStatus('Please enter a GitHub Token.', 'error');
+    return;
+  }
+
+  setSyncStatus('Downloading...', '');
+
+  try {
+    const gistId = await getGistId(token);
+
+    if (!gistId) {
+      setSyncStatus('No data found on GitHub.', 'error');
+      return;
+    }
+
+    const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+      headers: {
+        'Authorization': `token ${token}`,
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+
+    if (!response.ok) throw new Error('Failed to fetch gist');
+
+    const gist = await response.json();
+    const file = gist.files[GIST_FILENAME];
+
+    if (!file || !file.content) {
+      setSyncStatus('Gist file is empty.', 'error');
+      return;
+    }
+
+    const data = JSON.parse(file.content);
+
+    if (Array.isArray(data.books)) {
+      books = data.books;
+      selectedBookId = data.selectedBookId || null;
+      saveState();
+      renderBookList();
+      loadSelectedBook();
+      setSyncStatus('Download successful!', 'success');
+      localStorage.setItem('githubToken', token);
+    } else {
+      setSyncStatus('Invalid data format.', 'error');
+    }
+
+  } catch (err) {
+    setSyncStatus('Download failed. Check console/token.', 'error');
+    console.error(err);
+  }
+}
+
 // Event Listeners
 addBookBtn.addEventListener('click', handleAddBook);
 
@@ -435,6 +614,19 @@ currentPageInput.addEventListener('keydown', (e) => {
 
 exportBtn.addEventListener('click', handleExport);
 importFile.addEventListener('change', handleFileSelect);
+
+// Settings Listeners
+settingsBtn.addEventListener('click', showSettingsModal);
+closeSettingsBtn.addEventListener('click', hideSettingsModal);
+syncUploadBtn.addEventListener('click', handleSyncUpload);
+syncDownloadBtn.addEventListener('click', handleSyncDownload);
+
+// Close settings modal when clicking outside
+settingsModal.addEventListener('click', (e) => {
+  if (e.target === settingsModal) {
+    hideSettingsModal();
+  }
+});
 
 // Download Logic
 downloadBtn.addEventListener('click', async () => {
@@ -487,7 +679,7 @@ downloadBtn.addEventListener('click', async () => {
 
     const link = document.createElement('a');
     link.download = filename;
-    link.href = canvas.toDataURL('image/png');
+    link.href = URL.createObjectURL(blob);
     link.click();
   } catch (err) {
     console.error('Error generating image:', err);
