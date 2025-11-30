@@ -109,6 +109,11 @@ details summary {
   gap: 8px;
 }
 
+.input-with-button {
+  display: flex;
+  gap: 10px;
+}
+
 .select-wrapper {
   display: flex;
   gap: 10px;
@@ -241,41 +246,13 @@ option.book-completed {
   align-items: center;
   justify-content: center;
   gap: 20px;
+  width: 100%;
 }
 
-.progress-circle {
-  width: 70%;
-  max-width: 200px;
+.chart-wrapper {
+  width: 100%;
+  height: 200px;
   position: relative;
-}
-
-.circular-chart {
-  display: block;
-  margin: 0 auto;
-  max-width: 100%;
-  max-height: 250px;
-}
-
-.circle-bg {
-  fill: none;
-  stroke: #eee;
-  stroke-width: 2.5;
-}
-
-.circle {
-  fill: none;
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  stroke: var(--accent-color);
-  transition: stroke-dasharray 0.5s ease;
-}
-
-.percentage {
-  fill: var(--text-primary);
-  font-family: var(--font-family);
-  font-weight: 600;
-  font-size: 0.5em;
-  text-anchor: middle;
 }
 
 .page-info {
@@ -350,6 +327,12 @@ option.book-completed {
 
 .btn-primary:hover {
   background-color: var(--accent-hover);
+}
+
+.btn-small {
+  padding: 10px 20px;
+  width: auto;
+  font-size: 0.9rem;
 }
 
 .btn-secondary {

@@ -1,4 +1,5 @@
 import html2canvas from 'html2canvas';
+import Chart from 'chart.js/auto';
 
 // DOM Elements
 const bookSelect = document.getElementById('bookSelect');
@@ -14,8 +15,7 @@ const importFile = document.getElementById('importFile');
 
 const totalPagesInput = document.getElementById('totalPages');
 const currentPageInput = document.getElementById('currentPage');
-const progressPath = document.getElementById('progressPath');
-const percentageText = document.getElementById('percentageText');
+const updatePageBtn = document.getElementById('updatePageBtn');
 const pageDisplay = document.getElementById('pageDisplay');
 const currentDateEl = document.getElementById('currentDate');
 const currentTimeEl = document.getElementById('currentTime');
@@ -25,6 +25,7 @@ const cardLastRead = document.getElementById('cardLastRead');
 const congratsMessage = document.getElementById('congratsMessage');
 const downloadBtn = document.getElementById('downloadBtn');
 const captureCard = document.getElementById('capture-card');
+const progressChartCanvas = document.getElementById('progressChart');
 
 // Delete Modal Elements
 const deleteModal = document.getElementById('deleteModal');
@@ -39,6 +40,7 @@ const confirmImportBtn = document.getElementById('confirmImportBtn');
 // State
 let books = JSON.parse(localStorage.getItem('books')) || [];
 let selectedBookId = localStorage.getItem('selectedBookId') || null;
+let chartInstance = null;
 
 // Functions
 function saveState() {
@@ -80,20 +82,14 @@ function updateProgressUI(current, total) {
   // Clamp current page
   const safeCurrent = Math.min(Math.max(current, 0), total);
 
-  // Update text
-  pageDisplay.textContent = `${safeCurrent} / ${total}`;
-
   // Calculate percentage
   let percentage = 0;
   if (total > 0) {
-    percentage = (safeCurrent / total) * 100;
+    percentage = Math.round((safeCurrent / total) * 100);
   }
 
-  // Update percentage text
-  percentageText.textContent = `${Math.round(percentage)}%`;
-
-  // Update circle stroke
-  progressPath.setAttribute('stroke-dasharray', `${percentage}, 100`);
+  // Update text with percentage
+  pageDisplay.textContent = `${safeCurrent} / ${total} (${percentage}%)`;
 
   // Show/Hide Congratulatory Message
   if (total > 0 && safeCurrent >= total) {
@@ -103,15 +99,92 @@ function updateProgressUI(current, total) {
   }
 }
 
+function renderChart(book) {
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  if (!book || !book.history || book.history.length === 0) {
+    // Render empty or placeholder if no data
+    return;
+  }
+
+  // Sort history by date just in case
+  const sortedHistory = [...book.history].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  const labels = sortedHistory.map(h => h.date);
+  const data = sortedHistory.map(h => h.page);
+
+  chartInstance = new Chart(progressChartCanvas, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Pages Read',
+        data: data,
+        borderColor: '#0071e3',
+        backgroundColor: 'rgba(0, 113, 227, 0.1)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4,
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: book.totalPages || undefined,
+          grid: {
+            color: '#f0f0f0'
+          }
+        },
+        x: {
+          grid: {
+            display: false
+          }
+        }
+      }
+    }
+  });
+}
+
 function loadSelectedBook() {
   const book = books.find(b => b.id === selectedBookId);
   if (book) {
+    // Initialize history if missing
+    if (!book.history) {
+      book.history = [];
+      // Add start date entry if not present
+      if (book.startDate) {
+        book.history.push({ date: book.startDate, page: 0 });
+      }
+      // Add current state if different from start
+      const today = getTodayString();
+      if (book.startDate !== today && book.currentPage > 0) {
+        book.history.push({ date: today, page: book.currentPage });
+      }
+      saveState();
+    }
+
     totalPagesInput.value = book.totalPages;
     currentPageInput.value = book.currentPage;
     cardBookTitle.textContent = book.title;
     cardStartDate.textContent = book.startDate || '-';
     cardLastRead.textContent = book.lastReadDate || '-';
     updateProgressUI(book.currentPage, book.totalPages);
+    renderChart(book);
   } else {
     totalPagesInput.value = '';
     currentPageInput.value = '';
@@ -119,6 +192,10 @@ function loadSelectedBook() {
     cardStartDate.textContent = '-';
     cardLastRead.textContent = '-';
     updateProgressUI(0, 0);
+    if (chartInstance) {
+      chartInstance.destroy();
+      chartInstance = null;
+    }
   }
 
   // Update delete button visibility/state
@@ -141,7 +218,10 @@ function handleAddBook() {
     totalPages: total,
     startDate: date,
     currentPage: 0,
-    lastReadDate: null
+    lastReadDate: null,
+    history: [
+      { date: date, page: 0 }
+    ]
   };
 
   books.push(newBook);
@@ -203,9 +283,25 @@ function handleInputUpdate() {
   // Update book state
   book.totalPages = total;
   book.currentPage = current;
+
+  // Update History
+  const today = getTodayString();
+  if (!book.history) book.history = [];
+
+  const todayEntryIndex = book.history.findIndex(h => h.date === today);
+  if (todayEntryIndex >= 0) {
+    book.history[todayEntryIndex].page = current;
+  } else {
+    book.history.push({ date: today, page: current });
+  }
+
+  // Sort history to keep chart correct
+  book.history.sort((a, b) => new Date(a.date) - new Date(b.date));
+
   saveState();
 
   updateProgressUI(current, total);
+  renderChart(book);
 
   // Re-render list to update green status if completed
   renderBookList();
@@ -334,8 +430,20 @@ bookSelect.addEventListener('change', (e) => {
   loadSelectedBook();
 });
 
+// Manual Update Listeners
+updatePageBtn.addEventListener('click', handleInputUpdate);
+currentPageInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    handleInputUpdate();
+  }
+});
+
+// Total pages can still update immediately or manually? 
+// User only asked for "Current Page" to be manual. 
+// But let's keep total pages immediate for now as it's less frequent, or make it manual too?
+// For consistency, let's leave total pages as immediate for now unless requested, 
+// but typically total pages doesn't change often.
 totalPagesInput.addEventListener('input', handleInputUpdate);
-currentPageInput.addEventListener('input', handleInputUpdate);
 
 exportBtn.addEventListener('click', handleExport);
 importFile.addEventListener('change', handleFileSelect);
