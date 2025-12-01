@@ -6,7 +6,7 @@ export default defineConfig({
     plugins: [
         VitePWA({
             registerType: 'autoUpdate',
-            includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+            includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'masked-icon.svg'],
             manifest: {
                 name: 'Reading Progress',
                 short_name: 'ReadingProgress',
