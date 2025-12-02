@@ -37,11 +37,40 @@ const cancelImportBtn = document.getElementById('cancelImportBtn');
 const confirmImportBtn = document.getElementById('confirmImportBtn');
 
 const saveIndicator = document.getElementById('saveIndicator');
+const installBtn = document.getElementById('installBtn');
 
 // State
 let books = JSON.parse(localStorage.getItem('books')) || [];
 let selectedBookId = localStorage.getItem('selectedBookId') || null;
 let chartInstance = null;
+let deferredPrompt;
+
+// PWA Install Logic
+window.addEventListener('beforeinstallprompt', (e) => {
+  // Prevent Chrome 67 and earlier from automatically showing the prompt
+  e.preventDefault();
+  // Stash the event so it can be triggered later.
+  deferredPrompt = e;
+  // Update UI to notify the user they can add to home screen
+  installBtn.classList.remove('hidden');
+});
+
+installBtn.addEventListener('click', (e) => {
+  // Hide our user interface that shows our A2HS button
+  installBtn.classList.add('hidden');
+  // Show the prompt
+  deferredPrompt.prompt();
+  // Wait for the user to respond to the prompt
+  deferredPrompt.userChoice.then((choiceResult) => {
+    if (choiceResult.outcome === 'accepted') {
+      console.log('User accepted the A2HS prompt');
+    } else {
+      console.log('User dismissed the A2HS prompt');
+    }
+    deferredPrompt = null;
+  });
+});
+
 
 // Functions
 function showSaveStatus() {
@@ -192,7 +221,8 @@ function loadSelectedBook() {
       saveState();
     }
 
-    currentPageInput.value = book.currentPage;
+    currentPageInput.value = '';
+    currentPageInput.placeholder = book.currentPage;
     cardBookTitle.textContent = book.title;
     cardStartDate.textContent = book.startDate || '-';
     cardLastRead.textContent = book.lastReadDate || '-';
@@ -200,6 +230,7 @@ function loadSelectedBook() {
     renderChart(book);
   } else {
     currentPageInput.value = '';
+    currentPageInput.placeholder = '0';
     cardBookTitle.textContent = 'Book Title';
     cardStartDate.textContent = '-';
     cardLastRead.textContent = '-';
@@ -291,7 +322,13 @@ function handleInputUpdate() {
   const book = books.find(b => b.id === selectedBookId);
   if (!book) return;
 
-  const current = parseInt(currentPageInput.value) || 0;
+  let current;
+  if (currentPageInput.value === '') {
+    current = book.currentPage;
+  } else {
+    current = parseInt(currentPageInput.value);
+    if (isNaN(current)) current = book.currentPage;
+  }
 
   // Update book state
   book.currentPage = current;
@@ -317,6 +354,10 @@ function handleInputUpdate() {
 
   // Re-render list to update green status if completed
   renderBookList();
+
+  // Reset input to placeholder style
+  currentPageInput.value = '';
+  currentPageInput.placeholder = current;
 }
 
 function updateTime() {
