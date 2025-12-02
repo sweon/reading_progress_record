@@ -38,6 +38,7 @@ const confirmImportBtn = document.getElementById('confirmImportBtn');
 
 const saveIndicator = document.getElementById('saveIndicator');
 const installBtn = document.getElementById('installBtn');
+const debugLog = document.getElementById('debugLog');
 
 // State
 let books = JSON.parse(localStorage.getItem('books')) || [];
@@ -45,30 +46,62 @@ let selectedBookId = localStorage.getItem('selectedBookId') || null;
 let chartInstance = null;
 let deferredPrompt;
 
+// Debug Function
+function logDebug(message) {
+  console.log('[PWA Debug]', message);
+  if (debugLog) {
+    debugLog.style.display = 'block';
+    const entry = document.createElement('div');
+    entry.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+    debugLog.appendChild(entry);
+  }
+}
+
 // PWA Install Logic
 window.addEventListener('beforeinstallprompt', (e) => {
+  logDebug('beforeinstallprompt fired');
   // Prevent Chrome 67 and earlier from automatically showing the prompt
   e.preventDefault();
   // Stash the event so it can be triggered later.
   deferredPrompt = e;
   // Update UI to notify the user they can add to home screen
   installBtn.classList.remove('hidden');
+  logDebug('Install button shown');
 });
 
+window.addEventListener('appinstalled', () => {
+  logDebug('App installed');
+  installBtn.classList.add('hidden');
+  deferredPrompt = null;
+});
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.ready.then((registration) => {
+    logDebug('Service Worker ready');
+  }).catch((error) => {
+    logDebug('Service Worker error: ' + error);
+  });
+}
+
 installBtn.addEventListener('click', (e) => {
+  logDebug('Install button clicked');
   // Hide our user interface that shows our A2HS button
   installBtn.classList.add('hidden');
   // Show the prompt
-  deferredPrompt.prompt();
-  // Wait for the user to respond to the prompt
-  deferredPrompt.userChoice.then((choiceResult) => {
-    if (choiceResult.outcome === 'accepted') {
-      console.log('User accepted the A2HS prompt');
-    } else {
-      console.log('User dismissed the A2HS prompt');
-    }
-    deferredPrompt = null;
-  });
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    // Wait for the user to respond to the prompt
+    deferredPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        logDebug('User accepted the A2HS prompt');
+      } else {
+        logDebug('User dismissed the A2HS prompt');
+      }
+      deferredPrompt = null;
+    });
+  } else {
+    logDebug('No deferredPrompt available');
+  }
 });
 
 
