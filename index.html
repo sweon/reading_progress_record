@@ -22,7 +22,16 @@
     <main>
       <div class="book-management">
         <div class="input-group">
-          <label for="bookSelect">Select Book</label>
+          <div class="header-row">
+            <label for="bookSelect">Select Book</label>
+            <div class="sort-wrapper">
+              <select id="sortSelect" class="sort-select" title="Sort Books">
+                <option value="lastRead">Last Read</option>
+                <option value="title">Title</option>
+                <option value="startDate">Start Date</option>
+              </select>
+            </div>
+          </div>
           <div class="select-wrapper">
             <select id="bookSelect">
               <option value="" disabled selected>Select a book...</option>

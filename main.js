@@ -1,8 +1,10 @@
 import html2canvas from 'html2canvas';
 import Chart from 'chart.js/auto';
+import 'chartjs-adapter-date-fns';
 
 // DOM Elements
 const bookSelect = document.getElementById('bookSelect');
+const sortSelect = document.getElementById('sortSelect');
 const deleteBookBtn = document.getElementById('deleteBookBtn');
 const newBookTitle = document.getElementById('newBookTitle');
 const newBookTotal = document.getElementById('newBookTotal');
@@ -41,6 +43,7 @@ const saveIndicator = document.getElementById('saveIndicator');
 // State
 let books = JSON.parse(localStorage.getItem('books')) || [];
 let selectedBookId = localStorage.getItem('selectedBookId') || null;
+let currentSort = 'lastRead';
 let chartInstance = null;
 
 // Functions
@@ -66,7 +69,24 @@ function saveState() {
   }
 }
 
+function sortBooks() {
+  books.sort((a, b) => {
+    if (currentSort === 'title') {
+      return a.title.localeCompare(b.title);
+    } else if (currentSort === 'startDate') {
+      return new Date(b.startDate) - new Date(a.startDate);
+    } else {
+      // Default: Last Read
+      // If lastReadDate is missing, treat as very old
+      const dateA = a.lastReadDate ? new Date(a.lastReadDate) : new Date(0);
+      const dateB = b.lastReadDate ? new Date(b.lastReadDate) : new Date(0);
+      return dateB - dateA;
+    }
+  });
+}
+
 function renderBookList() {
+  sortBooks();
   bookSelect.innerHTML = '<option value="" disabled>Select a book...</option>';
   books.forEach(book => {
     const option = document.createElement('option');
@@ -139,7 +159,7 @@ function renderChart(book) {
         borderColor: '#0071e3',
         backgroundColor: 'rgba(0, 113, 227, 0.1)',
         fill: true,
-        tension: 0.3,
+        tension: 0.1, // Reduced tension for more accurate time representation
         pointRadius: 4,
         pointHoverRadius: 6
       }]
@@ -165,6 +185,14 @@ function renderChart(book) {
           }
         },
         x: {
+          type: 'time',
+          time: {
+            unit: 'day',
+            tooltipFormat: 'yyyy-MM-dd',
+            displayFormats: {
+              day: 'MM/dd'
+            }
+          },
           grid: {
             display: false
           }
@@ -295,6 +323,7 @@ function handleInputUpdate() {
 
   // Update book state
   book.currentPage = current;
+  book.lastReadDate = getTodayString();
 
   // Update History
   const today = getTodayString();
@@ -313,6 +342,7 @@ function handleInputUpdate() {
   saveState();
 
   updateProgressUI(current, book.totalPages);
+  cardLastRead.textContent = book.lastReadDate;
   renderChart(book);
 
   // Re-render list to update green status if completed
@@ -442,6 +472,11 @@ bookSelect.addEventListener('change', (e) => {
   loadSelectedBook();
 });
 
+sortSelect.addEventListener('change', (e) => {
+  currentSort = e.target.value;
+  renderBookList();
+});
+
 // Manual Update Listeners
 updatePageBtn.addEventListener('click', handleInputUpdate);
 currentPageInput.addEventListener('keydown', (e) => {
@@ -515,5 +550,6 @@ downloadBtn.addEventListener('click', async () => {
 // Initial update
 updateTime();
 setInterval(updateTime, 60000);
+sortSelect.value = currentSort;
 renderBookList();
 loadSelectedBook();
