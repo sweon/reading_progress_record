@@ -39,6 +39,7 @@ const cancelImportBtn = document.getElementById('cancelImportBtn');
 const confirmImportBtn = document.getElementById('confirmImportBtn');
 
 const saveIndicator = document.getElementById('saveIndicator');
+const errorIndicator = document.getElementById('errorIndicator');
 
 // State
 let books = JSON.parse(localStorage.getItem('books')) || [];
@@ -52,6 +53,14 @@ function showSaveStatus() {
   setTimeout(() => {
     saveIndicator.classList.add('hidden');
   }, 2000);
+}
+
+function showError(message) {
+  errorIndicator.textContent = message;
+  errorIndicator.classList.remove('hidden');
+  setTimeout(() => {
+    errorIndicator.classList.add('hidden');
+  }, 3000);
 }
 
 function saveState() {
@@ -323,7 +332,7 @@ function handleInputUpdate() {
 
   // Validation: Check if current page exceeds total pages
   if (book.totalPages > 0 && current > book.totalPages) {
-    alert(`Current page cannot exceed total pages (${book.totalPages}).`);
+    showError(`Current page cannot exceed total pages (${book.totalPages}).`);
     currentPageInput.value = book.currentPage; // Reset to previous valid value
     return;
   }
