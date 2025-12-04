@@ -449,6 +449,28 @@ option.book-completed {
   opacity: 0;
 }
 
+.error-indicator {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--danger-color);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  z-index: 2000;
+  box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
+}
+
+.error-indicator.hidden {
+  opacity: 0;
+}
+
 /* Responsive Layout */
 @media (min-width: 768px) {
   #app {
