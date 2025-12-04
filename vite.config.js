@@ -2,11 +2,11 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
-    base: '/reading_progress_record/',
+    base: './',
     plugins: [
         VitePWA({
             registerType: 'autoUpdate',
-            includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+            includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'masked-icon.svg'],
             manifest: {
                 name: 'Reading Progress',
                 short_name: 'ReadingProgress',

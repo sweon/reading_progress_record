@@ -40,9 +40,44 @@ const confirmImportBtn = document.getElementById('confirmImportBtn');
 
 const saveIndicator = document.getElementById('saveIndicator');
 
+// Storage Helper
+const SafeStorage = {
+  getItem: (key) => {
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      console.warn('LocalStorage access failed:', e);
+      return null;
+    }
+  },
+  setItem: (key, value) => {
+    try {
+      localStorage.setItem(key, value);
+    } catch (e) {
+      console.warn('LocalStorage write failed:', e);
+      alert('Warning: Storage is disabled. Your data will not be saved.');
+    }
+  },
+  removeItem: (key) => {
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {
+      console.warn('LocalStorage remove failed:', e);
+    }
+  }
+};
+
 // State
-let books = JSON.parse(localStorage.getItem('books')) || [];
-let selectedBookId = localStorage.getItem('selectedBookId') || null;
+let books = [];
+try {
+  const storedBooks = SafeStorage.getItem('books');
+  books = storedBooks ? JSON.parse(storedBooks) : [];
+} catch (e) {
+  console.error('Failed to parse books:', e);
+  books = [];
+}
+
+let selectedBookId = SafeStorage.getItem('selectedBookId') || null;
 let currentSort = 'lastRead';
 let chartInstance = null;
 
@@ -55,18 +90,13 @@ function showSaveStatus() {
 }
 
 function saveState() {
-  try {
-    localStorage.setItem('books', JSON.stringify(books));
-    if (selectedBookId) {
-      localStorage.setItem('selectedBookId', selectedBookId);
-    } else {
-      localStorage.removeItem('selectedBookId');
-    }
-    showSaveStatus();
-  } catch (e) {
-    console.error('LocalStorage save failed:', e);
-    alert('Failed to save data. LocalStorage might be full or disabled.');
+  SafeStorage.setItem('books', JSON.stringify(books));
+  if (selectedBookId) {
+    SafeStorage.setItem('selectedBookId', selectedBookId);
+  } else {
+    SafeStorage.removeItem('selectedBookId');
   }
+  showSaveStatus();
 }
 
 function sortBooks() {
