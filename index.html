@@ -20,112 +20,117 @@
     </header>
 
     <main>
-      <div class="book-management">
-        <div class="input-group">
-          <div class="header-row">
-            <label for="bookSelect">Select Book</label>
-            <div class="sort-wrapper">
-              <select id="sortSelect" class="sort-select" title="Sort Books">
-                <option value="lastRead">Last Read</option>
-                <option value="title">Title</option>
-                <option value="startDate">Start Date</option>
-              </select>
-            </div>
-          </div>
-          <div class="select-wrapper">
-            <select id="bookSelect">
-              <option value="" disabled selected>Select a book...</option>
-            </select>
-            <button id="deleteBookBtn" class="btn-icon" title="Delete Book" aria-label="Delete Book">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <details id="addBookDetails">
-          <summary>Add New Book</summary>
-          <div class="add-book-form">
+      <div class="layout-container">
+        <div class="left-column">
+          <div class="book-management">
             <div class="input-group">
-              <label for="newBookTitle">Book Title</label>
-              <input type="text" id="newBookTitle" placeholder="e.g. The Great Gatsby" />
-            </div>
-            <div class="input-group">
-              <label for="newBookTotal">Total Pages</label>
-              <input type="number" id="newBookTotal" placeholder="e.g. 300" min="1" />
-            </div>
-            <div class="input-group">
-              <label for="newBookDate">Start Date</label>
-              <input type="date" id="newBookDate" />
-            </div>
-            <button id="addBookBtn" type="button" class="btn-secondary">Add Book</button>
-          </div>
-        </details>
-
-        <details class="data-management">
-          <summary>Data Management</summary>
-          <div class="data-actions">
-            <button id="exportBtn" class="btn-secondary">Export Data</button>
-            <button id="importBtn" class="btn-secondary">Import Data</button>
-          </div>
-        </details>
-      </div>
-
-      <div class="controls">
-
-        <div class="input-group">
-          <label for="currentPage">Current Page</label>
-          <div class="input-with-button">
-            <input type="number" id="currentPage" min="0" placeholder="0">
-            <button id="updatePageBtn" class="btn-primary btn-small">Update</button>
-          </div>
-        </div>
-      </div>
-
-      <div id="congratsMessage" class="congrats-message hidden">
-        🎉 Congratulations! You've finished the book! 🎉
-      </div>
-
-      <div class="preview-container">
-        <div id="capture-card" class="card">
-          <div class="card-header">
-            <div class="header-top">
-              <span id="currentDate">2023.10.27</span>
-              <span id="currentTime">10:30 AM</span>
-            </div>
-            <h2 id="cardBookTitle" class="book-title">Book Title</h2>
-          </div>
-          <div class="card-body">
-            <div class="chart-wrapper">
-              <canvas id="progressChart"></canvas>
-            </div>
-            <div class="page-info">
-              <span class="label">Current Page</span>
-              <span id="pageDisplay" class="page-display">0 / 0</span>
-            </div>
-          </div>
-
-          <div class="card-footer">
-            <div class="book-dates">
-              <div class="date-item">
-                <span class="date-label">Start Date</span>
-                <span id="cardStartDate">-</span>
+              <div class="header-row">
+                <label for="bookSelect">Select Book</label>
+                <div class="sort-wrapper">
+                  <select id="sortSelect" class="sort-select" title="Sort Books">
+                    <option value="lastRead">Last Read</option>
+                    <option value="title">Title</option>
+                    <option value="startDate">Start Date</option>
+                  </select>
+                </div>
               </div>
-              <div class="date-item" style="text-align: right;">
-                <span class="date-label">Last Read</span>
-                <span id="cardLastRead">-</span>
+              <div class="select-wrapper">
+                <select id="bookSelect">
+                  <option value="" disabled selected>Select a book...</option>
+                </select>
+                <button id="deleteBookBtn" class="btn-icon" title="Delete Book" aria-label="Delete Book">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <details id="addBookDetails">
+              <summary>Add New Book</summary>
+              <div class="add-book-form">
+                <div class="input-group">
+                  <label for="newBookTitle">Book Title</label>
+                  <input type="text" id="newBookTitle" placeholder="e.g. The Great Gatsby" />
+                </div>
+                <div class="input-group">
+                  <label for="newBookTotal">Total Pages</label>
+                  <input type="number" id="newBookTotal" placeholder="e.g. 300" min="1" />
+                </div>
+                <div class="input-group">
+                  <label for="newBookDate">Start Date</label>
+                  <input type="date" id="newBookDate" />
+                </div>
+                <button id="addBookBtn" type="button" class="btn-secondary">Add Book</button>
+              </div>
+            </details>
+
+            <details class="data-management">
+              <summary>Data Management</summary>
+              <div class="data-actions">
+                <button id="exportBtn" class="btn-secondary">Export Data</button>
+                <button id="importBtn" class="btn-secondary">Import Data</button>
+              </div>
+            </details>
+          </div>
+
+          <div class="controls">
+            <div class="input-group">
+              <label for="currentPage">Current Page</label>
+              <div class="input-with-button">
+                <input type="number" id="currentPage" min="0" placeholder="0">
+                <button id="updatePageBtn" class="btn-primary btn-small">Update</button>
               </div>
             </div>
           </div>
+
+          <div id="congratsMessage" class="congrats-message hidden">
+            🎉 Congratulations! You've finished the book! 🎉
+          </div>
+        </div>
+
+        <div class="right-column">
+          <div class="preview-container">
+            <div id="capture-card" class="card">
+              <div class="card-header">
+                <div class="header-top">
+                  <span id="currentDate">2023.10.27</span>
+                  <span id="currentTime">10:30 AM</span>
+                </div>
+                <h2 id="cardBookTitle" class="book-title">Book Title</h2>
+              </div>
+              <div class="card-body">
+                <div class="chart-wrapper">
+                  <canvas id="progressChart"></canvas>
+                </div>
+                <div class="page-info">
+                  <span class="label">Current Page</span>
+                  <span id="pageDisplay" class="page-display">0 / 0</span>
+                </div>
+              </div>
+
+              <div class="card-footer">
+                <div class="book-dates">
+                  <div class="date-item">
+                    <span class="date-label">Start Date</span>
+                    <span id="cardStartDate">-</span>
+                  </div>
+                  <div class="date-item" style="text-align: right;">
+                    <span class="date-label">Last Read</span>
+                    <span id="cardLastRead">-</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button id="downloadBtn" class="btn-primary">
+            Download Image
+          </button>
         </div>
       </div>
-
-      <button id="downloadBtn" class="btn-primary">
-        Download Image
-      </button>
       <input type="file" id="importFile" accept=".json" style="display: none;" />
       <div id="saveIndicator" class="save-indicator hidden">Saved</div>
     </main>

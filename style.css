@@ -448,3 +448,39 @@ option.book-completed {
 .save-indicator.hidden {
   opacity: 0;
 }
+
+/* Responsive Layout */
+@media (min-width: 768px) {
+  #app {
+    max-width: 1000px;
+  }
+
+  .layout-container {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 30px;
+    align-items: start;
+  }
+
+  .left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .right-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .preview-container {
+    margin: 0;
+  }
+
+  .card {
+    aspect-ratio: auto;
+    height: 100%;
+    min-height: 500px;
+  }
+}
