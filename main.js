@@ -321,6 +321,13 @@ function handleInputUpdate() {
 
   const current = parseInt(currentPageInput.value) || 0;
 
+  // Validation: Check if current page exceeds total pages
+  if (book.totalPages > 0 && current > book.totalPages) {
+    alert(`Current page cannot exceed total pages (${book.totalPages}).`);
+    currentPageInput.value = book.currentPage; // Reset to previous valid value
+    return;
+  }
+
   // Update book state
   book.currentPage = current;
   book.lastReadDate = getTodayString();
